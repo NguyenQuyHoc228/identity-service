@@ -1,0 +1,22 @@
+# .yaml có cấu trúc phân cấp, dễ đọc hơn khi config.
+
+server:
+  port: 8080
+  servlet:
+    context-path: /identity
+
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/identity_service2"
+    username: root
+    password: root
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true  # In SQL ra console → debug, tắt ở production
+
+jwt:
+  signerKey: "29da87f839479eab94bb191c6f21f37127a5b6ba3c4a6c01593d91f05905019f"
+  valid-duration: 3600       # 1 giờ
+  refreshable-duration: 36000 # 10 giờ
