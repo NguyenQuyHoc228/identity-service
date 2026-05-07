@@ -21,22 +21,8 @@ public class CustomJwtDecoder implements JwtDecoder {
     private String signerKey;
 
     /*
-     * @Autowired + @Lazy: giải quyết circular dependency.
-     *
-     * Circular dependency xảy ra khi:
-     * SecurityConfig → CustomJwtDecoder → AuthenticationService
-     *                                           ↓
-     *                              (AuthenticationService dùng PasswordEncoder,
-     *                               UserRepository → không phụ thuộc SecurityConfig)
-     *
-     * Thực ra không có circular dependency thực sự ở đây,
-     * nhưng Spring có thể gặp vấn đề khi khởi tạo do SecurityConfig
-     * tạo SecurityFilterChain cần CustomJwtDecoder cần AuthenticationService
-     * mà AuthenticationService chưa được init xong.
-     *
-     * @Lazy: Spring không inject AuthenticationService ngay khi tạo CustomJwtDecoder
-     * → Chỉ inject lần đầu khi decode() được gọi (lazy initialization)
-     * → Lúc đó tất cả Bean đã được khởi tạo xong → không có vấn đề
+     @Autowired + @Lazy: giải quyết circular dependency.
+      @Lazy: Spring không inject AuthenticationService ngay khi tạo CustomJwtDecoder
      */
     @Autowired
     @Lazy

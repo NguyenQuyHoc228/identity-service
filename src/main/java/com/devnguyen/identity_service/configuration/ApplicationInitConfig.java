@@ -15,18 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
 
-/*
- * ApplicationRunner: interface Spring Boot, method run() được gọi
- * SAU KHI application khởi động xong (sau khi tất cả Bean được tạo).
- *
- * Tại sao dùng ApplicationRunner thay vì @PostConstruct?
- * → @PostConstruct chạy khi Bean được tạo — lúc đó Spring context
- *   có thể chưa sẵn sàng hoàn toàn (transaction, security chưa setup)
- * → ApplicationRunner chạy sau khi TOÀN BỘ context ready
- * → An toàn hơn để thực hiện DB operations lúc startup
- *
- * @Configuration: đây là class cấu hình, chứa @Bean methods
- */
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
@@ -34,15 +22,6 @@ public class ApplicationInitConfig {
 
     private final PasswordEncoder passwordEncoder;
 
-    /*
-     * @Bean ApplicationRunner: đăng ký ApplicationRunner như một Spring Bean.
-     *
-     * Tại sao inject UserRepository và RoleRepository vào @Bean method
-     * thay vì inject vào class?
-     * → Tránh circular dependency với SecurityConfig
-     *   (SecurityConfig cần PasswordEncoder, ApplicationInitConfig cần PasswordEncoder)
-     * → Spring tự inject parameter của @Bean method
-     */
     @Bean
     ApplicationRunner applicationRunner(
             UserRepository userRepository,
@@ -58,10 +37,7 @@ public class ApplicationInitConfig {
     }
 
     private void initRoles(RoleRepository roleRepository) {
-        /*
-         * Tạo role USER nếu chưa tồn tại.
-         * existsById(name): PK của Role là name → findById("USER")
-         */
+
         if (!roleRepository.existsById(PredefinedRole.USER_ROLE)) {
             roleRepository.save(Role.builder()
                     .name(PredefinedRole.USER_ROLE)
@@ -83,19 +59,8 @@ public class ApplicationInitConfig {
             UserRepository userRepository,
             RoleRepository roleRepository) {
 
-        /*
-         * Chỉ tạo admin nếu chưa tồn tại.
-         * Tại sao check existsByUsername thay vì findByUsername?
-         * → existsByUsername: SELECT COUNT(*) → chỉ quan tâm có hay không
-         * → findByUsername: SELECT * → load toàn bộ object → tốn hơn
-         * → Dùng phương thức phù hợp với mục đích
-         */
         if (!userRepository.existsByUsername("admin")) {
 
-            /*
-             * FIX BUG project gốc: roles bị comment out → admin không có role
-             * → Sửa: fetch ADMIN role từ DB và gán cho admin user
-             */
             var adminRole = roleRepository.findById(PredefinedRole.ADMIN_ROLE)
                     .orElseThrow(() -> new RuntimeException("ADMIN role not found"));
 
@@ -104,11 +69,6 @@ public class ApplicationInitConfig {
 
             User admin = User.builder()
                     .username("admin")
-                    /*
-                     * Encode password "admin" bằng BCrypt.
-                     * Trong production: đọc từ biến môi trường
-                     * .password(passwordEncoder.encode(System.getenv("ADMIN_PASSWORD")))
-                     */
                     .password(passwordEncoder.encode("admin"))
                     .roles(roles)
                     .build();

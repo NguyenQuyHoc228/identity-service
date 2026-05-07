@@ -13,16 +13,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /*
- * AccessDeniedHandler: được gọi khi user ĐÃ authenticate
- * nhưng không có quyền truy cập resource.
- *
- * Ví dụ: user có ROLE_USER cố gắng gọi endpoint cần ROLE_ADMIN
- * → AuthorizationFilter throw AccessDeniedException
- * → Spring Security gọi handle() ở đây
- *
- * Phân biệt với AuthenticationEntryPoint:
- * AuthenticationEntryPoint → 401 (chưa login)
- * AccessDeniedHandler     → 403 (đã login nhưng không có quyền)
+  AccessDeniedHandler: được gọi khi user ĐÃ authenticate
+  nhưng không có quyền truy cập resource.
  */
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {

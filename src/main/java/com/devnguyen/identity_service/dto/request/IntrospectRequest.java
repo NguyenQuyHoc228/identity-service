@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor; // ← Thêm cái này
 import lombok.AllArgsConstructor; // ← Thêm cái này
 
 @Data
-@Builder          // ← Đây là nguyên nhân lỗi, thiếu annotation này
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class IntrospectRequest {

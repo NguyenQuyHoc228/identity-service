@@ -11,10 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-/*
- * FIX BUG project gốc: dùng @RequiredArgsConstructor (constructor injection)
- * thay vì @Autowired field injection cho nhất quán và testable hơn.
- */
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -23,14 +19,6 @@ public class UserController {
 
     private final UserService userService;
 
-    /*
-     * @Valid: kích hoạt Bean Validation cho UserCreationRequest.
-     * → Spring check tất cả annotation (@Size, @DobConstraint...) trên request
-     * → Nếu fail → throw MethodArgumentNotValidException
-     * → GlobalExceptionHandler bắt và trả về error response chuẩn
-     *
-     * @Valid đặt trước @RequestBody: validate TRƯỚC khi method chạy.
-     */
     @PostMapping
     public ApiResponse<UserResponse> createUser(@Valid @RequestBody UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
@@ -38,11 +26,6 @@ public class UserController {
                 .build();
     }
 
-    /*
-     * Endpoint này yêu cầu ROLE_ADMIN (check trong Service bằng @PreAuthorize).
-     * Controller không biết/không quan tâm về authorization logic.
-     * → Separation of concerns: Controller lo HTTP, Service lo business + security.
-     */
     @GetMapping
     public ApiResponse<List<UserResponse>> getUsers() {
         return ApiResponse.<List<UserResponse>>builder()
@@ -50,14 +33,6 @@ public class UserController {
                 .build();
     }
 
-    /*
-     * "/myInfo": đặt TRƯỚC "/{id}" vì Spring match URL theo thứ tự.
-     * Nếu "/{id}" đặt trước → "/myInfo" bị match như id="myInfo" → logic sai.
-     *
-     * Thực tế trong Spring Boot: @GetMapping("/myInfo") và @GetMapping("/{id}")
-     * → Spring ưu tiên literal path ("/myInfo") hơn path variable ("/{id}")
-     * → Thứ tự khai báo không quan trọng, nhưng để trên cho rõ ràng.
-     */
     @GetMapping("/myInfo")
     public ApiResponse<UserResponse> getMyInfo() {
         return ApiResponse.<UserResponse>builder()
@@ -72,12 +47,6 @@ public class UserController {
                 .build();
     }
 
-    /*
-     * @PutMapping("/{id}"): HTTP PUT → update toàn bộ resource.
-     * (Strict REST: PUT = replace toàn bộ, PATCH = update một phần)
-     * Project này dùng PUT nhưng implement như PATCH (nhờ IGNORE_NULL trong mapper)
-     * → Đây là common trade-off trong thực tế
-     */
     @PutMapping("/{id}")
     public ApiResponse<UserResponse> updateUser(
             @PathVariable String id,

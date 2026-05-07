@@ -22,22 +22,9 @@ public class RoleService {
     private final RoleMapper roleMapper;
 
     public RoleResponse create(RoleRequest request) {
-        // Map request → entity (permissions bị ignore trong mapper)
+        // Map request → entity
         Role role = roleMapper.toRole(request);
 
-        /*
-         * Tại sao cần findAllById thay vì chỉ lưu tên permission?
-         *
-         * request.getPermissions() = Set<String> = {"CREATE_DATA", "READ_DATA"}
-         * Role.permissions = Set<Permission> = cần Permission entity thực sự
-         *
-         * findAllById(ids): một câu query duy nhất lấy tất cả Permission có name trong list
-         * → SELECT * FROM permission WHERE name IN ('CREATE_DATA', 'READ_DATA')
-         * → Hiệu quả hơn gọi findById nhiều lần (N queries)
-         *
-         * HashSet: wrap lại vì findAllById trả về List, ta cần Set
-         * (Role.permissions là Set<Permission>)
-         */
         var permissions = permissionRepository.findAllById(request.getPermissions());
         role.setPermissions(new HashSet<>(permissions));
 
